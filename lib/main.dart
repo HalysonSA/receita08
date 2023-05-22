@@ -10,6 +10,7 @@ void main() {
 ValueNotifier<List> products = ValueNotifier([]);
 ValueNotifier<bool> isLoading = ValueNotifier(false);
 ValueNotifier<List> cartItems = ValueNotifier([]);
+ValueNotifier<int> totalItems = ValueNotifier(0);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -42,13 +43,19 @@ class MyHomePage extends HookWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("PDV"),
-        bottom: const TabBar(tabs: [
+        bottom: TabBar(tabs: [
           Tab(
             icon: Icon(Icons.list),
             text: "Catalogo",
           ),
           Tab(
-            icon: Icon(Icons.shopping_cart),
+            icon: ValueListenableBuilder<int>(
+              valueListenable: totalItems,
+              builder: (context, value, child) => Badge.count(
+                count: value,
+                child: Icon(Icons.shopping_cart),
+              ),
+            ),
             text: "Carrinho",
           ),
         ]),
@@ -70,7 +77,8 @@ class Catalog extends HookWidget {
   Widget build(BuildContext context) {
     Future<void> getProducts() async {
       isLoading.value = true;
-      var productsUrl = Uri(host: "fakestoreapi.com", path: "/products");
+      var productsUrl =
+          Uri(scheme: "http", host: "fakestoreapi.com", path: "/products");
       var jsonString = http.read(productsUrl);
       var json = await jsonString;
       isLoading.value = false;
@@ -180,6 +188,16 @@ class Catalog extends HookWidget {
                                   ),
                                   onPressed: () {
                                     cartItems.value.add(value[index]);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: const Text(
+                                            'Adicionado ao carrinho'),
+                                        action: SnackBarAction(
+                                          label: 'Fechar',
+                                          onPressed: () {},
+                                        ),
+                                      ),
+                                    );
                                   },
                                   child: const Text('Adicionar ao carrinho'),
                                 ))
@@ -203,12 +221,15 @@ class Cart extends HookWidget {
     return ValueListenableBuilder<List>(
       valueListenable: cartItems,
       builder: (context, value, child) {
-        return ListView.builder(
-          itemCount: value.length,
-          itemBuilder: (context, index) {
-            return isLoading.value
-                ? const CircularProgressIndicator()
-                : ListTile(
+        return isLoading.value
+            ? const Center(
+                child: CircularProgressIndicator(),
+              )
+            : ListView.builder(
+                itemCount: value.length,
+                itemBuilder: (context, index) {
+                  totalItems.value = cartItems.value.length;
+                  return ListTile(
                     leading: SizedBox(
                         width: 100,
                         child: Image.network(
@@ -234,8 +255,8 @@ class Cart extends HookWidget {
                       },
                     ),
                   );
-          },
-        );
+                },
+              );
       },
     );
   }
