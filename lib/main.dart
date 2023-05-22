@@ -24,9 +24,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorSchemeSeed: Colors.green,
       ),
-      home: DefaultTabController(
+      home: const DefaultTabController(
         length: 2,
-        child: const MyHomePage(title: 'PDV'),
+        child: MyHomePage(title: 'PDV'),
       ),
     );
   }
@@ -53,9 +53,9 @@ class MyHomePage extends HookWidget {
           ),
         ]),
       ),
-      body: TabBarView(
+      body: const TabBarView(
         children: [
-          const Catalog(),
+          Catalog(),
           Cart(),
         ],
       ),
@@ -92,19 +92,50 @@ class Catalog extends HookWidget {
                 itemCount: value.length,
                 itemBuilder: (context, index) {
                   return Card(
-                    margin: EdgeInsets.symmetric(
+                    margin: const EdgeInsets.symmetric(
                       horizontal: 5,
                       vertical: 10,
                     ),
                     child: Column(
                       children: [
-                        Container(
+                        SizedBox(
                           height: 200,
                           width: double.infinity,
                           child: Image.network(
                             value[index]["image"].toString(),
                             fit: BoxFit.cover,
                           ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.star),
+                                    Text(
+                                      value[index]["rating"]["rate"].toString(),
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                )),
+                            Container(
+                                padding: const EdgeInsets.all(10),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.category),
+                                    Text(
+                                      value[index]["category"].toString(),
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ],
+                                ))
+                          ],
                         ),
                         Container(
                           alignment: Alignment.topLeft,
@@ -113,7 +144,7 @@ class Catalog extends HookWidget {
                             value[index]["title"].toString(),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
@@ -134,32 +165,24 @@ class Catalog extends HookWidget {
                           child: Text("R\$" + value[index]["price"].toString(),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.w500)),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(10),
-                              child: TextButton(
-                                onPressed: () {
-                                  cartItems.value.add(value[index]);
-                                },
-                                child: const Text("Adicionar ao carrinho"),
-                                style: ButtonStyle(
-                                  padding:
-                                      MaterialStateProperty.all<EdgeInsets>(
-                                          const EdgeInsets.all(20)),
-                                  foregroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.white),
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.green),
-                                ),
-                              ),
-                            )
+                                padding: const EdgeInsets.all(10),
+                                child: FilledButton(
+                                  style: ButtonStyle(
+                                    padding: MaterialStateProperty.all(
+                                        const EdgeInsets.all(20)),
+                                  ),
+                                  onPressed: () {
+                                    cartItems.value.add(value[index]);
+                                  },
+                                  child: const Text('Adicionar ao carrinho'),
+                                ))
                           ],
                         )
                       ],
@@ -186,7 +209,7 @@ class Cart extends HookWidget {
             return isLoading.value
                 ? const CircularProgressIndicator()
                 : ListTile(
-                    leading: Container(
+                    leading: SizedBox(
                         width: 100,
                         child: Image.network(
                           value[index]["image"],
@@ -194,13 +217,13 @@ class Cart extends HookWidget {
                         )),
                     title: Text(
                       value[index]["title"],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     subtitle: Text(
-                      " R\$" + value[index]["price"].toString(),
+                      " R\$ ${value[index]["price"].toString()}",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
